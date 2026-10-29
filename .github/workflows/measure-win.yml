@@ -1,34 +1,6 @@
-name: run-python-test
+name: measure-win
 
 on:
-  push:
-    branches:
-      - master
-      - python
-      - wheel-win-arm64
-    paths:
-      - '.github/workflows/run-python-test.yaml'
-      - '.github/scripts/test-python*.sh'
-      - '.github/scripts/test-speaker-recognition-python.sh'
-      - '.github/scripts/common.sh'
-      - 'cmake/**'
-      - 'setup.py'
-      - 'sherpa-onnx/csrc/*'
-      - 'sherpa-onnx/python/**'
-      - 'python-api-examples/**'
-  pull_request:
-    branches:
-      - master
-    paths:
-      - '.github/workflows/run-python-test.yaml'
-      - '.github/scripts/test-python*.sh'
-      - '.github/scripts/test-speaker-recognition-python.sh'
-      - '.github/scripts/common.sh'
-      - 'cmake/**'
-      - 'setup.py'
-      - 'sherpa-onnx/csrc/*'
-      - 'sherpa-onnx/python/**'
-      - 'python-api-examples/**'
   workflow_dispatch:
 
 concurrency:
@@ -53,28 +25,17 @@ jobs:
     name: build ${{ matrix.os }} ${{ matrix.python-version }} ${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
     strategy:
+      # fork-only measurement harness (agarg21): Windows x64/arm64 + ubuntu-latest control
       fail-fast: false
       matrix:
         include:
           # Linux x64
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
             python-version: "3.8"
             arch: x64
 
-          # Linux arm64
-          - os: ubuntu-24.04-arm
-            python-version: "3.9"
-            arch: arm64
 
-          # macOS x64
-          - os: macos-15-intel
-            python-version: "3.10"
-            arch: x64
 
-          # macOS arm64
-          - os: macos-latest
-            python-version: "3.11"
-            arch: arm64
 
           # Windows x64
           - os: windows-2022
@@ -269,26 +230,14 @@ jobs:
           - asr-streaming
           - tts
         os:
-          - ubuntu-latest
-          - ubuntu-24.04-arm
-          - macos-15-intel
-          - macos-latest
+          - ubuntu-24.04
           - windows-2022
           - windows-11-arm
         include:
           # Keep these in sync with the build matrix above.
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
             python-version: "3.8"
             arch: x64
-          - os: ubuntu-24.04-arm
-            python-version: "3.9"
-            arch: arm64
-          - os: macos-15-intel
-            python-version: "3.10"
-            arch: x64
-          - os: macos-latest
-            python-version: "3.11"
-            arch: arm64
           - os: windows-2022
             python-version: "3.14"
             arch: x64
