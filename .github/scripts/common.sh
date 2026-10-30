@@ -155,6 +155,19 @@ download_and_extract() {
     extracted="${extracted%.zip}"
     case "$filename" in
       *.tar.bz2|*.tar.bz|*.tbz2|*.tbz)
+        # On Windows, Git-Bash tar decompresses bzip2 on a single thread
+        # (several times slower than on Linux runners). 7-Zip, preinstalled on
+        # GitHub Windows images, decodes bzip2 with multiple threads; tar still
+        # writes the files. Falls back to tar below if 7z is missing or fails.
+        if [ "${RUNNER_OS:-}" = "Windows" ] && command -v 7z >/dev/null 2>&1; then
+          if (set -o pipefail; 7z x -so -mmt=on "$filename" 2>/dev/null | tar xvf - -C "$output_dir"); then
+            log "Successfully extracted with 7z: $filename"
+            rm -f "$filename"
+            _sherpa_register_cleanup "$output_dir/$extracted"
+            return 0
+          fi
+          log "7z extraction failed, falling back to tar"
+        fi
         if tar jxvf "$filename" -C "$output_dir" 2>/dev/null; then
           log "Successfully extracted: $filename"
           rm -f "$filename"
